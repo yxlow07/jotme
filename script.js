@@ -139,6 +139,7 @@ function saveEntry() {
             document.getElementById("dateofentry").value = "";
             document.getElementById("entrytext").value = "";
             fetchEntries();
+            window.location.reload();
         } else {
             alert("Failed to save entry. Please try again.");
         }
