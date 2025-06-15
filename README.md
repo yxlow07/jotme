@@ -16,7 +16,7 @@ First, the journal entry is passed to the backend, where KeyBERT model extracts 
 
 ## Usage
 
-1. **Start the backend server:**
+1. **Start the backend server on windows:**
    ```sh
    install.bat
    run.bat
@@ -24,9 +24,22 @@ First, the journal entry is passed to the backend, where KeyBERT model extracts 
    First, install all dependencies using `install.bat`.
    Then, launch the server at `http://127.0.0.1:8000` using `run.bat`.
 
+1. **Start the backend server on macOS:**
+   ```sh
+   install.sh
+   run.sh
+   ```
+   First, install all dependencies using `install.sh`.
+   Then, launch the server at `http://127.0.0.1:8000` using `run.sh`.
+
 2. **Open the frontend:**
    - Open `index.html` in your web browser for the main diary interface.
    - Open `stats.html` to view your mood statistics and summaries.
+
+3. **Any Errors:**
+   - If you see a lot of downloading, don't worry, it is installing the AI models.
+   - If you see some 404 errors, it is FastAPI is trying to read favicons, which is not needed.
+   - Lastly, if you face an error saving, create a file `diary_entries.txt` in the root directory of the project first. It is not needed, as Python will create it automatically, but it is a workaround for some systems.
 
 ## API Endpoints
 
