@@ -26,11 +26,15 @@ First, the journal entry is passed to the backend, where KeyBERT model extracts 
 
 1. **Start the backend server on macOS:**
    ```sh
-   install.sh
-   run.sh
+   chmod +x install.sh
+   ./install.sh
+   chmod +x run.sh
+   ./run.sh
    ```
    First, install all dependencies using `install.sh`.
    Then, launch the server at `http://127.0.0.1:8000` using `run.sh`.
+
+# Important! Just open the `index.html` will do, don't open the 127.0.0.1:8000, that's the backend.
 
 2. **Open the frontend:**
    - Open `index.html` in your web browser for the main diary interface.
