@@ -54,7 +54,7 @@ function updateStats(entries) {
     const now = new Date();
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay());
-    startOfWeek.setHours(0,0,0,0);
+    startOfWeek.setHours(0, 0, 0, 0);
 
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 7);
@@ -71,7 +71,6 @@ function updateStats(entries) {
             weekMoodSum += Number(entry.mood_score) || 0;
             weekMoods.push(entry.mood_score);
         }
-        console.log(entry.emotions);
     });
 
     const avgMood = weekEntries > 0 ? (weekMoodSum / weekEntries) : 0;
@@ -80,31 +79,67 @@ function updateStats(entries) {
     document.querySelectorAll('.birdseyestats .box')[2].querySelector('h2').innerText = weekEntries > 0 ? (avgMood).toFixed(0) + " / 100" : "N/A";
 
     const moodcardsDiv = document.querySelector('.moodcards');
-    moodcardsDiv.innerHTML = ""; 
+    moodcardsDiv.innerHTML = "";
+    
     const latestEntries = entries
         .filter(e => e.emotions && e.mood_score)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, weekEntries);
+        .filter(e => {
+            const entryDate = new Date(e.date);
+            return entryDate >= startOfWeek && entryDate < endOfWeek;
+        })
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const emojis = latestEntries.map(entry => {
+    const emotionStats = {};
+    for (const entry of latestEntries) {
         const topEmotion = getTopEmotion(entry.emotions);
-        return emotionToEmoji(topEmotion.name);
-    });
+        const emotion = topEmotion.name;
+        if (!emotionStats[emotion]) {
+            emotionStats[emotion] = { sum: 0, count: 0 };
+        }
+        emotionStats[emotion].sum += Number(entry.mood_score) || 0;
+        emotionStats[emotion].count += 1;
+    }
 
-    document.getElementById('smallemoji2').innerText = emojis[0] || "😀";
-    document.getElementById('subemoji2').innerText = emojis[1] || "😀";
-    document.getElementById('mainemoji').innerText = emojis[2] || "😀";
-    document.getElementById('subemoji1').innerText = emojis[3] || "😀";
-    document.getElementById('smallemoji1').innerText = emojis[4] || "😀";
-
-    latestEntries.forEach(entry => {
-        const topEmotion = getTopEmotion(entry.emotions);
-        const emoji = emotionToEmoji(topEmotion.name);
+    Object.entries(emotionStats).forEach(([emotion, stat]) => {
+        const avg = stat.count > 0 ? (stat.sum / stat.count).toFixed(0) : "N/A";
         const card = document.createElement('h4');
         card.className = 'glossy';
-        card.innerText = `${capitalize(topEmotion.name)}: ${entry.mood_score}`;
+        card.innerText = `${capitalize(emotion)}: ${avg}`;
         moodcardsDiv.appendChild(card);
     });
+
+    const emojiCounts = {};
+    for (const entry of latestEntries) {
+        const topEmotion = getTopEmotion(entry.emotions);
+        const emoji = emotionToEmoji(topEmotion.name);
+        if (!emojiCounts[emoji]) emojiCounts[emoji] = 0;
+        emojiCounts[emoji]++;
+    }
+
+    const uniqueEmojis = Object.keys(emojiCounts)
+        .map(emoji => ({
+            emoji,
+            count: emojiCounts[emoji],
+            latestIndex: latestEntries.findIndex(entry => emotionToEmoji(getTopEmotion(entry.emotions).name) === emoji)
+        }))
+        .sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.latestIndex - b.latestIndex;
+        })
+        .map(e => e.emoji)
+        .slice(0, 5);
+
+    const emojiIds = ['mainemoji', 'subemoji1', 'subemoji2', 'smallemoji1', 'smallemoji2'];
+    for (let i = 0; i < emojiIds.length; i++) {
+        const el = document.getElementById(emojiIds[i]);
+        if (uniqueEmojis[i]) {
+            el.innerText = uniqueEmojis[i];
+            el.style.visibility = "visible";
+        } else {
+            el.innerText = "";
+            el.style.visibility = "hidden";
+        }
+    }
 }
 
 function plotMoodScores(entries) {

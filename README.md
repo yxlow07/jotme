@@ -18,11 +18,11 @@ First, the journal entry is passed to the backend, where KeyBERT model extracts 
 
 1. **Start the backend server:**
    ```sh
-   ./install.bat
-   ./run.bat
+   install.bat
+   run.bat
    ```
-   First, install the dependencies.
-   Then, launch the FastAPI server at `http://127.0.0.1:8000`.
+   First, install all dependencies using `install.bat`.
+   Then, launch the server at `http://127.0.0.1:8000` using `run.bat`.
 
 2. **Open the frontend:**
    - Open `index.html` in your web browser for the main diary interface.
