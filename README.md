@@ -44,6 +44,7 @@ First, the journal entry is passed to the backend, where KeyBERT model extracts 
    - If you see a lot of downloading, don't worry, it is installing the AI models.
    - If you see some 404 errors, it is FastAPI is trying to read favicons, which is not needed.
    - Lastly, if you face an error saving, create a file `diary_entries.txt` in the root directory of the project first. It is not needed, as Python will create it automatically, but it is a workaround for some systems.
+   - Note: if entries do not show immediately after saving, you can refresh the site. No data will be lost. 
 
 ## API Endpoints
 
