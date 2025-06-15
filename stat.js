@@ -49,6 +49,21 @@ function capitalize(word) {
     return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
+function softmax(obj) {
+    const values = Object.values(obj);
+    if (values.length === 0) return {};
+    const max = Math.max(...values);
+    const exps = values.map(v => Math.exp(v - max));
+    const sumExp = exps.reduce((a, b) => a + b, 0);
+    const keys = Object.keys(obj);
+    const result = {};
+    for (let i = 0; i < keys.length; i++) {
+        result[keys[i]] = exps[i] / sumExp;
+    }
+    return result;
+}
+
+
 function updateStats(entries) {
     const totalEntries = entries.length;
     const now = new Date();
@@ -59,29 +74,7 @@ function updateStats(entries) {
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 7);
 
-    let weekEntries = 0;
-    let weekMoodSum = 0;
-    let weekMoods = [];
-
-    entries.forEach(entry => {
-        if (!entry.date) return;
-        const entryDate = new Date(entry.date);
-        if (entryDate >= startOfWeek && entryDate < endOfWeek) {
-            weekEntries++;
-            weekMoodSum += Number(entry.mood_score) || 0;
-            weekMoods.push(entry.mood_score);
-        }
-    });
-
-    const avgMood = weekEntries > 0 ? (weekMoodSum / weekEntries) : 0;
-    document.querySelectorAll('.birdseyestats .box')[0].querySelector('h2').innerText = totalEntries;
-    document.querySelectorAll('.birdseyestats .box')[1].querySelector('h2').innerText = weekEntries;
-    document.querySelectorAll('.birdseyestats .box')[2].querySelector('h2').innerText = weekEntries > 0 ? (avgMood).toFixed(0) + " / 100" : "N/A";
-
-    const moodcardsDiv = document.querySelector('.moodcards');
-    moodcardsDiv.innerHTML = "";
-    
-    const latestEntries = entries
+    const latestWeekEntries = entries
         .filter(e => e.emotions && e.mood_score)
         .filter(e => {
             const entryDate = new Date(e.date);
@@ -89,27 +82,36 @@ function updateStats(entries) {
         })
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const emotionStats = {};
-    for (const entry of latestEntries) {
-        const topEmotion = getTopEmotion(entry.emotions);
-        const emotion = topEmotion.name;
-        if (!emotionStats[emotion]) {
-            emotionStats[emotion] = { sum: 0, count: 0 };
-        }
-        emotionStats[emotion].sum += Number(entry.mood_score) || 0;
-        emotionStats[emotion].count += 1;
-    }
+    const weekEntries = latestWeekEntries.length;
+    const weekMoodSum = latestWeekEntries.reduce((sum, e) => sum + (Number(e.mood_score) || 0), 0);
 
-    Object.entries(emotionStats).forEach(([emotion, stat]) => {
-        const avg = stat.count > 0 ? (stat.sum / stat.count).toFixed(0) : "N/A";
-        const card = document.createElement('h4');
-        card.className = 'glossy';
-        card.innerText = `${capitalize(emotion)}: ${avg}`;
-        moodcardsDiv.appendChild(card);
+    const avgMood = weekEntries > 0 ? (weekMoodSum / weekEntries) : 0;
+    document.querySelectorAll('.birdseyestats .box')[0].querySelector('h2').innerText = totalEntries;
+    document.querySelectorAll('.birdseyestats .box')[1].querySelector('h2').innerText = weekEntries;
+    document.querySelectorAll('.birdseyestats .box')[2].querySelector('h2').innerText = weekEntries > 0 ? (avgMood).toFixed(0) + " / 100" : "N/A";
+
+    const topEmotionCounts = {};
+    latestWeekEntries.forEach(entry => {
+        const topEmotion = getTopEmotion(entry.emotions);
+        if (!topEmotionCounts[topEmotion.name]) topEmotionCounts[topEmotion.name] = 0;
+        topEmotionCounts[topEmotion.name]++;
     });
 
+    const emotionPercents = softmax(topEmotionCounts);
+
+    const moodcardsDiv = document.querySelector('.moodcards');
+    moodcardsDiv.innerHTML = "";
+    Object.entries(emotionPercents)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([emotion, percent]) => {
+            const card = document.createElement('h4');
+            card.className = 'glossy';
+            card.innerText = `${capitalize(emotion)}: ${(percent * 100).toFixed(0)}`;
+            moodcardsDiv.appendChild(card);
+        });
+
     const emojiCounts = {};
-    for (const entry of latestEntries) {
+    for (const entry of latestWeekEntries) {
         const topEmotion = getTopEmotion(entry.emotions);
         const emoji = emotionToEmoji(topEmotion.name);
         if (!emojiCounts[emoji]) emojiCounts[emoji] = 0;
@@ -120,7 +122,7 @@ function updateStats(entries) {
         .map(emoji => ({
             emoji,
             count: emojiCounts[emoji],
-            latestIndex: latestEntries.findIndex(entry => emotionToEmoji(getTopEmotion(entry.emotions).name) === emoji)
+            latestIndex: latestWeekEntries.findIndex(entry => emotionToEmoji(getTopEmotion(entry.emotions).name) === emoji)
         }))
         .sort((a, b) => {
             if (b.count !== a.count) return b.count - a.count;
