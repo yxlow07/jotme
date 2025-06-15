@@ -4,14 +4,26 @@ from diaryProcessor import DiaryProcessor
 import networkx as nx
 import ast
 from langchain_google_genai import ChatGoogleGenerativeAI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 diary_processor = DiaryProcessor()
 
 class DiaryEntry(BaseModel):
+    date: str
+    title: str
     text: str
 
-@app.post("/process/")
+@app.post("/process")
 async def process_diary_entry(entry: DiaryEntry):
     text = entry.text
     keywords, graph, emotions, mood_score = diary_processor.process(text)
@@ -29,7 +41,7 @@ async def save_diary_entry(entry: DiaryEntry):
     keywords, graph, emotions, mood_score = diary_processor.process(entry.text)
 
     with open("diary_entries.txt", "a") as file:
-        file.write(f"{entry.text}\n{keywords}\n{emotions}\n{graph.__dict__}\n{mood_score}\n\n")
+        file.write(f"{entry.title}\n{entry.date}\n{entry.text}\n{keywords}\n{emotions}\n{graph.__dict__}\n{mood_score}\n\n")
 
     return {"message": "Diary entry saved successfully."}
 
@@ -42,14 +54,18 @@ async def list_all_entries():
 
             for entry in content:
                 lines = entry.strip().split("\n")
-                if len(lines) < 5:
+                if len(lines) < 7:
                     continue  # skip incomplete entries
-                text = lines[0]
-                keywords = ast.literal_eval(lines[1])
-                emotions = ast.literal_eval(lines[2])
-                graph = ast.literal_eval(lines[3])
-                mood_score = int(lines[4])
+                title = lines[0]
+                date = lines[1]
+                text = lines[2]
+                keywords = ast.literal_eval(lines[3])
+                emotions = ast.literal_eval(lines[4])
+                graph = ast.literal_eval(lines[5])
+                mood_score = int(lines[6])
                 entries.append({
+                    "title": title,
+                    "date": date,
                     "text": text,
                     "keywords": keywords,
                     "emotions": emotions,
@@ -81,7 +97,7 @@ async def suggestive_prompts():
         llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             temperature=0.6,
-            max_output_tokens=1000,
+            max_output_tokens=200,
             api_key="AIzaSyA-W1A_VAulKkw6H3XOEZjpjCTFGTnCpnc",
         )
         response = llm.invoke(prompt)
@@ -106,7 +122,7 @@ async def monthly_summary():
         user_texts = "\n".join([entry["text"] for entry in entries])
         prompt = (
             "Given the following diary entries, summarize the key themes, emotions, and events of the month. "
-            "Focus on the most significant aspects and avoid generic summaries. Give suggestions on how the user could improve on his/her mood. Focus on highly repeated words and also use some emojis. Start directly by giving a summary, no need to address the user. Do not use any formatting, everything should be in 2 paragraphs with no MD formatting\n\n"
+            "Focus on the most significant aspects and avoid generic summaries. Give suggestions on how the user could improve on his/her mood. Focus on highly repeated words and also use some emojis. Start directly by giving a summary, no need to address the user. Do not use any formatting, everything should be in 2 paragraphs with no MD formatting. Each question should only have 10 words max\n\n"
             f"Diary Entries:\n{user_texts}\n\nSummary:"
         )
         llm = ChatGoogleGenerativeAI(

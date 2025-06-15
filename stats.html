@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400..800&family=Wix+Madefor+Text:ital,wght@0,400..800;1,400..800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://kit.fontawesome.com/c2aeb8e94c.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>JotMe</title>
+  </head>
+
+  <body style="overflow-y: scroll">
+    <i class="fa-solid fa-star backgroundstar cyan"></i>
+    <i class="fa-solid fa-star backgroundstar pink"></i>
+    <i class="fa-solid fa-star backgroundstar purple"></i>
+    <i class="fa-solid fa-star backgroundstar yellow"></i>
+    <i class="fa-solid fa-star backgroundstar cyan"></i>
+    <i class="fa-solid fa-star backgroundstar pink"></i>
+    <i class="fa-solid fa-star backgroundstar purple"></i>
+    <i class="fa-solid fa-star backgroundstar yellow"></i>
+    <nav class="glossy float">
+      <img src="assets/logo.png" alt="" width="120px" />
+      <ul>
+        <li><a href="index.html">Entries</a></li>
+        <li><a href="stats.html">Stats</a></li>
+      </ul>
+    </nav>
+    <h1 class="centeroffset">Let's take a look at some stats.</h1>
+    <div class="birdseyestats">
+      <div class="box glossy">
+        <p>Total Entries</p>
+        <h2>0</h2>
+      </div>
+      <div class="box glossy">
+        <p>This week's Entries</p>
+        <h2>0</h2>
+      </div>
+
+      <div class="box glossy">
+        <p>Mood Score</p>
+        <h2>0/100</h2>
+      </div>
+    </div>
+    <div class="mood-dist glossy">
+      <div class="info">
+        <h2>Mood Distribution</h2>
+        <div class="moodcards">
+        </div>
+      </div>
+      <div class="emojis">
+        <h3 id="smallemoji2">😀</h3>
+        <h2 id="subemoji2">😀</h2>
+        <h1 id="mainemoji">😀</h1>
+        <h2 id="subemoji1">😀</h2>
+        <h3 id="smallemoji1">😀</h3>
+      </div>
+    </div>
+    <div class="seperation">
+      <div class="sentimentgraph glossy">
+        <h2>Sentiment Graph</h2>
+        <br />
+        <canvas id="sentimentChart"></canvas>
+      </div>
+    </div>
+    <div class="helplines glossy">
+      <h2>Helplines</h2>
+      <p>
+        You're not alone. If you're facing suicidal thoughts, reach out
+        immediately.
+      </p>
+      <div class="helplinecards">
+        <div class="helplinecard glossy">
+          <div>
+            <h3>Tele-MANAS</h3>
+            <p>
+              24/7 national mental health helpline offering free, multilingual
+              psychological support and crisis counselling across India via
+              short code 14416.
+            </p>
+          </div>
+          <button onclick="window.open('tel:14416')">Call Now</button>
+        </div>
+        <div class="helplinecard glossy">
+          <div>
+            <h3>Samaritans (UK-based, global access)</h3>
+            <p>
+              Free emotional support helpline for anyone in distress, feeling
+              suicidal, or needing to talk. Available anytime, worldwide. Call
+              +44 116 123.
+            </p>
+          </div>
+          <button onclick="window.open('tel:+44116123')">Call Now</button>
+        </div>
+        <div class="helplinecard glossy">
+          <div>
+            <h3>National Suicide Prevention Helpline (Hello Lifeline)</h3>
+            <p>
+              Confidential suicide prevention helpline offering emotional
+              support, crisis intervention, and listening services. Toll-free,
+              available across India at 1800-121-3667.
+            </p>
+          </div>
+          <button onclick="window.open('tel:18001213667')">Call Now</button>
+        </div>
+      </div>
+    </div>
+    <div class="suggestion glossy">
+      <h2>JotMe Suggestion</h2>
+    </div>
+    <br /><br /><br /><br />
+    <h6 style="text-align: center">
+      With 💗, Dea Bhargava, Yu Xuan Low, Yuthika Kolla | LingHacks VI
+    </h6>
+    <br />
+  </body>
+  <script src="stat.js"></script>
+</html>
